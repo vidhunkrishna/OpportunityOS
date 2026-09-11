@@ -8,15 +8,21 @@ import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
-async function main() {
+export async function seedDatabase(force = false) {
+  const oppCount = await prisma.opportunity.count().catch(() => 0);
+  if (!force && oppCount > 0) {
+    console.log(`Database already contains ${oppCount} opportunities. Skipping auto-seed.`);
+    return;
+  }
+
   console.log('Seeding OpportunityOS Database...');
 
   // Clean existing tables
-  await prisma.preparationTask.deleteMany({});
-  await prisma.preparationPlan.deleteMany({});
-  await prisma.application.deleteMany({});
-  await prisma.opportunity.deleteMany({});
-  await prisma.student.deleteMany({});
+  await prisma.preparationTask.deleteMany({}).catch(() => {});
+  await prisma.preparationPlan.deleteMany({}).catch(() => {});
+  await prisma.application.deleteMany({}).catch(() => {});
+  await prisma.opportunity.deleteMany({}).catch(() => {});
+  await prisma.student.deleteMany({}).catch(() => {});
 
   const hashedPassword = await bcrypt.hash('password123', 10);
 
@@ -497,11 +503,13 @@ async function main() {
   console.log('OpportunityOS Database Seeding Completed Successfully!');
 }
 
-main()
-  .catch((e) => {
-    console.error('Seeding Error:', e);
-    process.exit(1);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
+if (import.meta.url === `file://${process.argv[1]}` || process.argv[1]?.endsWith('seed.js')) {
+  seedDatabase(true)
+    .catch((e) => {
+      console.error('Seeding Error:', e);
+      process.exit(1);
+    })
+    .finally(async () => {
+      await prisma.$disconnect();
+    });
+}
