@@ -1,7 +1,7 @@
 # OpportunityOS 🚀
 
 > **Personalized Student Opportunity Engine & Career Action Planner**
-> *Discover 
+> Discover 
 
 OpportunityOS is an end-to-end career intelligence and opportunity execution platform built for students. It replaces generic job search boards with a deterministic 5-factor matching engine, eligibility verifications, interactive skill gap benchmarks, auto-generated 7-day action roadmaps, and contextual Google Gemini AI guidance.
 
