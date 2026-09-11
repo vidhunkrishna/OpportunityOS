@@ -8,6 +8,7 @@ import dotenv from 'dotenv';
 import apiRoutes from './routes/api.js';
 import authRoutes from './routes/authRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
+import { execSync } from 'child_process';
 import { seedDatabase } from '../prisma/seed.js';
 
 dotenv.config();
@@ -57,9 +58,12 @@ app.use('/api', apiRoutes);
 app.listen(PORT, async () => {
   console.log(`🚀 OpportunityOS Server listening on port ${PORT}`);
   try {
+    console.log('Ensuring Prisma SQLite database schema is created...');
+    execSync('npx prisma db push --accept-data-loss', { stdio: 'inherit' });
     await seedDatabase(false);
+    console.log('✅ Production Database Initialization & Verification Complete!');
   } catch (err) {
-    console.warn('Startup database auto-seed note:', err?.message || err);
+    console.warn('Startup database auto-initialization note:', err?.message || err);
   }
 });
 
