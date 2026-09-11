@@ -1,0 +1,96 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Student {
+  id                      String        @id @default(uuid())
+  name                    String
+  email                   String        @unique
+  password                String        @default("$2a$10$X8a3jP.0yX8a3jP.0yX8a.9U1z0h6s5M7Y8a3jP.0yX8a3jP.0y")
+  role                    String        @default("STUDENT") // STUDENT, ADMIN
+  education               String        @default("B.Tech Computer Science")
+  academicYear            Int           @default(3)
+  branch                  String        @default("Computer Science")
+  skillsJson              String        @default("[\"JavaScript\",\"React\",\"Node.js\",\"REST APIs\"]") // Stored as JSON string array
+  softSkillsJson          String        @default("[\"Problem Solving\",\"Teamwork\"]") // Stored as JSON string array
+  projectsJson            String        @default("[]") // Stored as JSON string array of objects
+  experienceJson          String        @default("[]") // Stored as JSON string array of objects
+  interestsJson           String        @default("[\"Web Development\"]") // Stored as JSON string array
+  preferredDomainsJson    String        @default("[\"Full Stack\"]") // Stored as JSON string array
+  careerGoalsJson         String        @default("[\"Full Stack Developer\"]") // Stored as JSON string array
+  preferredLocationsJson  String        @default("[\"Remote\"]") // Stored as JSON string array
+  preferredOppTypesJson   String        @default("[\"Internship\"]") // Stored as JSON string array
+  createdAt               DateTime      @default(now())
+  updatedAt               DateTime      @updatedAt
+  applications            Application[]
+  preparationPlans        PreparationPlan[]
+}
+
+model Opportunity {
+  id                      String        @id @default(uuid())
+  title                   String
+  organization            String
+  category                String        // Internship, Hackathon, Scholarship, Competition, Certification, Research, Fellowship, Job, etc.
+  description             String
+  eligibilityJson         String        // Stored as JSON object { minYear, maxYear, branches, academicLevel, minExperience }
+  requiredSkillsJson      String        // Stored as JSON string array
+  preferredSkillsJson     String        // Stored as JSON string array
+  deadline                DateTime
+  location                String
+  mode                    String        // Remote, Hybrid, On-site
+  experienceRequirements  String?
+  educationRequirements   String?
+  applicationUrl          String
+  tagsJson                String        // Stored as JSON string array
+  source                  String        // e.g. "TechNova Careers"
+  lastUpdated             String        // e.g. "2 days ago"
+  isVerified              Boolean       @default(true)
+  createdAt               DateTime      @default(now())
+  updatedAt               DateTime      @updatedAt
+  applications            Application[]
+  preparationPlans        PreparationPlan[]
+}
+
+model Application {
+  id             String      @id @default(uuid())
+  studentId      String
+  student        Student     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  opportunityId  String
+  opportunity    Opportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+  status         String      @default("SAVED") // SAVED, PREPARING, APPLIED, INTERVIEW, COMPLETED
+  notes          String?
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+}
+
+model PreparationPlan {
+  id             String            @id @default(uuid())
+  studentId      String
+  student        Student           @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  opportunityId  String
+  opportunity    Opportunity       @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+  title          String
+  targetSkills   String            // JSON string array of skills being targeted
+  tasks          PreparationTask[]
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+}
+
+model PreparationTask {
+  id          String          @id @default(uuid())
+  planId      String
+  plan        PreparationPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+  day         Int
+  title       String
+  description String
+  duration    String
+  priority    String          // HIGH, MEDIUM, LOW
+  isCompleted Boolean         @default(false)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+}
